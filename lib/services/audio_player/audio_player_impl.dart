@@ -86,18 +86,32 @@ class SpotubeAudioPlayer extends AudioPlayerInterface
         ?.uri;
   }
 
-  int get currentIndex => _mkPlayer.state.playlist.index;
+  PlaybackQueueController? queueController;
+
+  int get currentIndex => queueController?.currentIndex ?? _mkPlayer.state.playlist.index;
 
   Future<void> skipToNext() async {
-    await _mkPlayer.next();
+    if (queueController != null) {
+      await queueController!.skipToNext(isManual: true);
+    } else {
+      await _mkPlayer.next();
+    }
   }
 
   Future<void> skipToPrevious() async {
-    await _mkPlayer.previous();
+    if (queueController != null) {
+      await queueController!.skipToPrevious(isManual: true);
+    } else {
+      await _mkPlayer.previous();
+    }
   }
 
   Future<void> jumpTo(int index) async {
-    await _mkPlayer.jump(index);
+    if (queueController != null && index >= 0 && index < queueController!.mainQueue.length) {
+      await queueController!.jumpToTrack(queueController!.mainQueue[index]);
+    } else {
+      await _mkPlayer.jump(index);
+    }
   }
 
   Future<void> addTrack(mk.Media media) async {
@@ -121,10 +135,16 @@ class SpotubeAudioPlayer extends AudioPlayerInterface
   }
 
   Future<void> setShuffle(bool shuffle) async {
+    if (queueController != null) {
+      queueController!.setShuffle(shuffle);
+    }
     await _mkPlayer.setShuffle(shuffle);
   }
 
   Future<void> setLoopMode(PlaylistMode loop) async {
+    if (queueController != null) {
+      queueController!.setLoopMode(loop);
+    }
     await _mkPlayer.setPlaylistMode(loop);
   }
 

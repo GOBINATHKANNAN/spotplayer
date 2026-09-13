@@ -133,37 +133,7 @@ class AudioPlayerStreamListeners {
   }
 
   StreamSubscription subscribeToPosition() {
-    String lastTrack = ""; // used to prevent multiple calls to the same track
-    return audioPlayer.positionStream.listen((event) async {
-      final percentProgress =
-          (event.inSeconds / max(audioPlayer.duration.inSeconds, 1)) * 100;
-      try {
-        if (percentProgress < 80 ||
-            audioPlayerState.currentIndex == -1 ||
-            audioPlayerState.currentIndex ==
-                audioPlayerState.tracks.length - 1) {
-          return;
-        }
-        final nextTrack = audioPlayerState.tracks
-            .elementAtOrNull(audioPlayerState.currentIndex + 1);
-
-        if (nextTrack == null ||
-            lastTrack == nextTrack.id ||
-            nextTrack is SpotubeLocalTrackObject) {
-          return;
-        }
-
-        try {
-          await ref.read(
-            sourcedTrackProvider(nextTrack as SpotubeFullTrackObject).future,
-          );
-        } finally {
-          lastTrack = nextTrack.id;
-        }
-      } catch (e, stack) {
-        AppLogger.reportError(e, stack);
-      }
-    });
+    return audioPlayer.positionStream.listen((event) {});
   }
 
   StreamSubscription subscribeToPlayerError() {

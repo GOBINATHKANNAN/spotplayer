@@ -106,6 +106,9 @@ class AudioPlayerNotifier extends Notifier<AudioPlayerState> {
 
   @override
   build() {
+    // Bind queue controller to global audioPlayer instance so all callers route through it
+    audioPlayer.queueController = queueController;
+
     // Configure queue controller source resolver with pre-flight resolution
     queueController.sourceResolver = (track, {retryCount = 0}) async {
       final sourcedTrack = await ref.read(sourcedTrackProvider(track).future);
