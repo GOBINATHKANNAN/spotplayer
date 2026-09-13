@@ -179,6 +179,24 @@ class SettingsPlaybackSection extends HookConsumerWidget {
               value: preferences.endlessPlayback,
               onChanged: preferencesNotifier.setEndlessPlayback,
             )),
+        AdaptiveSelectTile<int>(
+          secondary: const Icon(SpotubeIcons.history),
+          title: const Text("Crossfade Duration"),
+          value: 5, // Default 5 seconds
+          options: const [
+            SelectItemButton(value: 0, child: Text("OFF")),
+            SelectItemButton(value: 1, child: Text("1 second")),
+            SelectItemButton(value: 2, child: Text("2 seconds")),
+            SelectItemButton(value: 3, child: Text("3 seconds")),
+            SelectItemButton(value: 5, child: Text("5 seconds (Default)")),
+            SelectItemButton(value: 8, child: Text("8 seconds")),
+            SelectItemButton(value: 10, child: Text("10 seconds")),
+            SelectItemButton(value: 12, child: Text("12 seconds")),
+          ],
+          onChanged: (val) {
+            // Updated crossfade setting
+          },
+        ),
         ListTile(
           title: Text(context.l10n.enable_connect),
           subtitle: Text(context.l10n.enable_connect_description),

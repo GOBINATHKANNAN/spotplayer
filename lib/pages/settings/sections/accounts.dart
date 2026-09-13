@@ -28,6 +28,24 @@ class SettingsAccountSection extends HookConsumerWidget {
           },
           trailing: const Icon(SpotubeIcons.angleRight),
         ),
+        ListTile(
+          leading: const Icon(SpotubeIcons.spotify, color: Colors.grey),
+          title: const Text("Spotify Account"),
+          subtitle: const Text("Integration Deferred (Scaffold - Not Configured)"),
+          trailing: const Badge(child: Text("Deferred")),
+        ),
+        ListTile(
+          leading: const Icon(SpotubeIcons.apple, color: Colors.grey),
+          title: const Text("Apple Music Account"),
+          subtitle: const Text("Integration Deferred (MusicKit Scaffold)"),
+          trailing: const Badge(child: Text("Deferred")),
+        ),
+        ListTile(
+          leading: const Icon(SpotubeIcons.youtube, color: Colors.grey),
+          title: const Text("YouTube Music Account"),
+          subtitle: const Text("Integration Deferred (Google OAuth Scaffold)"),
+          trailing: const Badge(child: Text("Deferred")),
+        ),
         if (scrobbler.asData?.value == null)
           ListTile(
             leading: const Icon(SpotubeIcons.music),

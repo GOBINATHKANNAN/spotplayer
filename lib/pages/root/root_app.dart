@@ -12,6 +12,8 @@ import 'package:spotube/hooks/configurators/use_endless_playback.dart';
 import 'package:spotube/modules/root/use_global_subscriptions.dart';
 import 'package:spotube/provider/glance/glance.dart';
 
+import 'package:spotube/components/security/app_lock_overlay.dart';
+
 @RoutePage()
 class RootAppPage extends HookConsumerWidget {
   const RootAppPage({super.key});
@@ -63,6 +65,6 @@ class RootAppPage extends HookConsumerWidget {
       ),
     );
 
-    return scaffold;
+    return AppLockOverlay(child: scaffold);
   }
 }
