@@ -9,6 +9,8 @@ import 'package:spotube/modules/metadata_plugins/plugin_update_available_dialog.
 import 'package:spotube/provider/metadata_plugin/metadata_plugin_provider.dart';
 import 'package:spotube/provider/metadata_plugin/updater/update_checker.dart';
 import 'package:spotube/provider/server/routes/connect.dart';
+import 'package:spotube/services/audio_player/playback_status.dart';
+import 'package:spotube/provider/audio_player/audio_player.dart';
 import 'package:spotube/services/audio_player/audio_player.dart';
 import 'package:spotube/services/connectivity_adapter.dart';
 import 'package:spotube/utils/service_utils.dart';
@@ -17,6 +19,36 @@ void useGlobalSubscriptions(WidgetRef ref) {
   final context = useContext();
   final theme = Theme.of(context);
   final connectRoutes = ref.watch(serverConnectRoutesProvider);
+
+  ref.listen(audioPlayerProvider, (previous, next) {
+    if (next.status == TrackPlaybackStatus.unavailable ||
+        next.status == TrackPlaybackStatus.failed) {
+      if (context.mounted) {
+        showToast(
+          context: context,
+          location: ToastLocation.bottomCenter,
+          builder: (context, overlay) {
+            return SurfaceCard(
+              fillColor: theme.colorScheme.destructive,
+              filled: true,
+              child: Basic(
+                leading: Icon(
+                  SpotubeIcons.warning,
+                  color: theme.colorScheme.destructiveForeground,
+                ),
+                title: Text(
+                  "Track unavailable. Advancing queue...",
+                  style: TextStyle(
+                    color: theme.colorScheme.destructiveForeground,
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      }
+    }
+  });
 
   useEffect(() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
