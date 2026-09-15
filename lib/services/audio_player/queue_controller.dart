@@ -5,6 +5,7 @@ import 'package:media_kit/media_kit.dart' hide Track;
 import 'package:spotube/models/metadata/metadata.dart';
 import 'package:spotube/services/audio_player/audio_player.dart';
 import 'package:spotube/services/audio_player/playback_status.dart';
+import 'package:spotube/services/audio_player/source_cache.dart';
 import 'package:spotube/services/logger/logger.dart';
 import 'package:uuid/uuid.dart';
 
@@ -183,31 +184,34 @@ class PlaybackQueueController extends ChangeNotifier {
         );
         _setStatus(TrackPlaybackStatus.playing);
       } else if (targetTrack is SpotubeFullTrackObject) {
-        String? resolvedUrl;
+        String? resolvedUrl = ResolvedSourceCache.get(targetTrack.id);
         int retries = 0;
 
-        while (retries <= 2 && requestId == _activeRequestId) {
-          try {
-            if (sourceResolver != null) {
-              resolvedUrl = await sourceResolver!(
-                targetTrack,
-                retryCount: retries,
-              ).timeout(const Duration(seconds: 10));
-            } else {
-              // Default fallback: SpotubeMedia endpoint
-              resolvedUrl = SpotubeMedia(targetTrack).uri;
+        if (resolvedUrl == null || resolvedUrl.isEmpty) {
+          while (retries <= 2 && requestId == _activeRequestId) {
+            try {
+              if (sourceResolver != null) {
+                resolvedUrl = await sourceResolver!(
+                  targetTrack,
+                  retryCount: retries,
+                ).timeout(const Duration(seconds: 10));
+              } else {
+                // Default fallback: SpotubeMedia endpoint
+                resolvedUrl = SpotubeMedia(targetTrack).uri;
+              }
+              if (resolvedUrl != null && resolvedUrl.isNotEmpty) {
+                ResolvedSourceCache.put(targetTrack.id, resolvedUrl);
+                break;
+              }
+            } catch (e) {
+              AppLogger.log.w(
+                'Source resolution attempt $retries failed for ${targetTrack.name}: $e',
+              );
             }
-            if (resolvedUrl != null && resolvedUrl.isNotEmpty) {
-              break;
+            retries++;
+            if (retries <= 2) {
+              await Future.delayed(Duration(milliseconds: 300 * retries));
             }
-          } catch (e) {
-            AppLogger.log.w(
-              'Source resolution attempt $retries failed for ${targetTrack.name}: $e',
-            );
-          }
-          retries++;
-          if (retries <= 2) {
-            await Future.delayed(Duration(milliseconds: 300 * retries));
           }
         }
 
