@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
 
@@ -51,21 +52,45 @@ class SearchPage extends HookConsumerWidget {
       },
     );
 
+    final debounceTimer = useRef<Timer?>(null);
+
     useEffect(() {
       controller.text = searchTerm;
+      void listener() {
+        debounceTimer.value?.cancel();
+        debounceTimer.value = Timer(const Duration(milliseconds: 300), () {
+          final text = controller.text.trim();
+          if (ref.read(searchTermStateProvider) != text) {
+            ref.read(searchTermStateProvider.notifier).state = text;
+            if (text.isNotEmpty) {
+              KVStoreService.setRecentSearches(
+                {
+                  text,
+                  ...KVStoreService.recentSearches,
+                }.toList(),
+              );
+            }
+          }
+        });
+      }
 
-      return null;
+      controller.addListener(listener);
+      return () {
+        debounceTimer.value?.cancel();
+        controller.removeListener(listener);
+      };
     }, []);
 
     void onSubmitted(String value) {
-      ref.read(searchTermStateProvider.notifier).state = value;
+      debounceTimer.value?.cancel();
+      ref.read(searchTermStateProvider.notifier).state = value.trim();
       focusNode.unfocus();
       if (value.trim().isEmpty) {
         return;
       }
       KVStoreService.setRecentSearches(
         {
-          value,
+          value.trim(),
           ...KVStoreService.recentSearches,
         }.toList(),
       );
