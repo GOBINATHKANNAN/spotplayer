@@ -44,6 +44,15 @@ class PlayerView extends HookConsumerWidget {
     final isLocalTrack = currentActiveTrack is SpotubeLocalTrackObject;
     final mediaQuery = MediaQuery.sizeOf(context);
     final qualityLabel = ref.watch(audioSourceQualityLabelProvider);
+    final audioState = ref.watch(audioPlayerProvider);
+    final statusText = switch (audioState.status) {
+      TrackPlaybackStatus.resolving => "Resolving source...",
+      TrackPlaybackStatus.playing => "Playing",
+      TrackPlaybackStatus.paused => "Paused",
+      TrackPlaybackStatus.unavailable => "Track unavailable",
+      TrackPlaybackStatus.failed => "Resolution failed",
+      _ => "Idle",
+    };
 
     final shouldHide = useState(true);
 
@@ -251,19 +260,38 @@ class PlayerView extends HookConsumerWidget {
                     }),
                   ),
                   const Gap(25),
-                  OutlineBadge(
-                    style: const ButtonStyle.outline(
-                      size: ButtonSize.normal,
-                      density: ButtonDensity.dense,
-                      shape: ButtonShape.rectangle,
-                    ).copyWith(
-                      textStyle: (context, states, value) {
-                        return value.copyWith(fontWeight: FontWeight.w500);
-                      },
-                    ),
-                    leading: const Icon(SpotubeIcons.lightningOutlined),
-                    child: Text(qualityLabel),
-                  )
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    spacing: 8,
+                    children: [
+                      OutlineBadge(
+                        style: const ButtonStyle.outline(
+                          size: ButtonSize.normal,
+                          density: ButtonDensity.dense,
+                          shape: ButtonShape.rectangle,
+                        ).copyWith(
+                          textStyle: (context, states, value) {
+                            return value.copyWith(fontWeight: FontWeight.w500);
+                          },
+                        ),
+                        leading: const Icon(SpotubeIcons.play),
+                        child: Text(statusText),
+                      ),
+                      OutlineBadge(
+                        style: const ButtonStyle.outline(
+                          size: ButtonSize.normal,
+                          density: ButtonDensity.dense,
+                          shape: ButtonShape.rectangle,
+                        ).copyWith(
+                          textStyle: (context, states, value) {
+                            return value.copyWith(fontWeight: FontWeight.w500);
+                          },
+                        ),
+                        leading: const Icon(SpotubeIcons.lightningOutlined),
+                        child: Text(qualityLabel),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
