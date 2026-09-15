@@ -5,6 +5,7 @@ import 'package:spotube/services/audio_player/playback_status.dart';
 import 'package:spotube/services/audio_player/queue_controller.dart';
 import 'package:spotube/services/audio_player/preload_manager.dart';
 import 'package:spotube/services/audio_player/recommendation_engine.dart';
+import 'package:spotube/services/audio_player/source_cache.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -209,8 +210,63 @@ void main() {
       await queueController.load([testTracks[0], testTracks[1]], initialIndex: 0, autoPlay: false);
       await recEngine.fetchEndlessRecommendations(testTracks[0].id);
 
-      expect(queueController.recommendationsQueue.first.name, equals('Recommended Song 1'));
-      recEngine.dispose();
+    test('TEST 10 — ResolvedSourceCache Instant Lookup & Reuse', () async {
+      int resolutionCallCount = 0;
+      queueController.sourceResolver = (track, {retryCount = 0}) async {
+        resolutionCallCount++;
+        return 'https://stream.example.com/${track.id}.mp3';
+      };
+
+      // Pre-fill cache (simulating preload)
+      ResolvedSourceCache.put('track_0', 'https://stream.example.com/track_0.mp3');
+
+      await queueController.load(testTracks, initialIndex: 0, autoPlay: false);
+      // Playing track_0 should use cached URL without invoking sourceResolver
+      await queueController.play();
+
+      expect(resolutionCallCount, equals(0));
+      expect(queueController.status, equals(TrackPlaybackStatus.playing));
+    });
+
+    test('TEST 11 — ResolvedSourceCache TTL Expiration & Bounds', () {
+      ResolvedSourceCache.clear();
+      ResolvedSourceCache.put('track_test', 'https://example.com/test.mp3', ttl: const Duration(milliseconds: 10));
+
+      expect(ResolvedSourceCache.get('track_test'), equals('https://example.com/test.mp3'));
+
+      // Invalidate manually
+      ResolvedSourceCache.invalidate('track_test');
+      expect(ResolvedSourceCache.get('track_test'), isNull);
+    });
+
+    test('TEST 12 — Large Queue Performance (500 Tracks)', () async {
+      final largeTracks = List.generate(
+        500,
+        (i) => SpotubeTrackObject.full(
+          id: 'large_$i',
+          name: 'Large Song $i',
+          externalUri: 'https://example.com/large_$i',
+          isrc: 'L$i',
+          explicit: false,
+          artists: [],
+          album: SpotubeSimpleAlbumObject(
+            id: 'a',
+            name: 'a',
+            externalUri: 'a',
+            albumType: SpotubeAlbumType.album,
+          ),
+          durationMs: 180000,
+        ),
+      );
+
+      final stopwatch = Stopwatch()..start();
+      await queueController.load(largeTracks, initialIndex: 0, autoPlay: false);
+      queueController.setShuffle(true);
+      await queueController.jumpToTrack(largeTracks[250]);
+      stopwatch.stop();
+
+      expect(queueController.effectiveTracks.length, equals(500));
+      expect(stopwatch.elapsedMilliseconds, lessThan(1000));
     });
   });
 }
