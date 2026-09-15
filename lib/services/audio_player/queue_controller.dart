@@ -232,12 +232,41 @@ class PlaybackQueueController extends ChangeNotifier {
         }
 
         _setStatus(TrackPlaybackStatus.ready);
-        await audioPlayer.openPlaylist(
-          [SpotubeMedia(targetTrack)],
-          autoPlay: true,
-          initialIndex: 0,
-        );
-        _setStatus(TrackPlaybackStatus.playing);
+        try {
+          await audioPlayer.openPlaylist(
+            [SpotubeMedia(targetTrack)],
+            autoPlay: true,
+            initialIndex: 0,
+          );
+          _setStatus(TrackPlaybackStatus.playing);
+        } catch (mediaError) {
+          if (requestId != _activeRequestId) return;
+          // Invalidate stale or invalid cache entry
+          ResolvedSourceCache.invalidate(targetTrack.id);
+          AppLogger.log.w(
+            'Opening cached media failed for ${targetTrack.name}. Invalidating cache and re-resolving...',
+          );
+
+          // Retry with fresh network resolution
+          String? freshUrl;
+          if (sourceResolver != null) {
+            freshUrl = await sourceResolver!(
+              targetTrack,
+              retryCount: 1,
+            ).timeout(const Duration(seconds: 10), onTimeout: () => null);
+          }
+          if (freshUrl != null && freshUrl.isNotEmpty && requestId == _activeRequestId) {
+            ResolvedSourceCache.put(targetTrack.id, freshUrl);
+            await audioPlayer.openPlaylist(
+              [SpotubeMedia(targetTrack)],
+              autoPlay: true,
+              initialIndex: 0,
+            );
+            _setStatus(TrackPlaybackStatus.playing);
+            return;
+          }
+          rethrow;
+        }
       }
     } catch (e, stack) {
       if (requestId != _activeRequestId) return;

@@ -268,5 +268,17 @@ void main() {
       expect(queueController.effectiveTracks.length, equals(500));
       expect(stopwatch.elapsedMilliseconds, lessThan(1000));
     });
+
+    test('TEST 13 — Invalid Cached Source Invalidation & Recovery', () async {
+      ResolvedSourceCache.clear();
+      // Put invalid source in cache
+      ResolvedSourceCache.put('track_0', 'https://dead-stream.example.com/track_0.mp3');
+
+      expect(ResolvedSourceCache.get('track_0'), isNotNull);
+
+      // Invalidate bad cache
+      ResolvedSourceCache.invalidate('track_0');
+      expect(ResolvedSourceCache.get('track_0'), isNull);
+    });
   });
 }
