@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:spotube/models/metadata/metadata.dart';
 import 'package:spotube/services/audio_player/audio_player.dart';
 import 'package:spotube/services/audio_player/queue_controller.dart';
+import 'package:spotube/services/audio_player/source_cache.dart';
 import 'package:spotube/services/logger/logger.dart';
 
 class NextTrackPreloadManager {
@@ -60,6 +61,7 @@ class NextTrackPreloadManager {
 
         if (preloadToken == queueController.activeRequestId && url != null) {
           _preloadedTrackId = nextTrack.id;
+          ResolvedSourceCache.put(nextTrack.id, url);
           AppLogger.log.i('Successfully preloaded source for ${nextTrack.name}');
         }
       } catch (e, stack) {
