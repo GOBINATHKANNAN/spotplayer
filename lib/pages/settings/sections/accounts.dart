@@ -1,5 +1,5 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter/material.dart' show ListTile;
+import 'package:flutter/material.dart' show ListTile, Badge;
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
@@ -28,23 +28,23 @@ class SettingsAccountSection extends HookConsumerWidget {
           },
           trailing: const Icon(SpotubeIcons.angleRight),
         ),
-        ListTile(
-          leading: const Icon(SpotubeIcons.spotify, color: Colors.grey),
-          title: const Text("Spotify Account"),
-          subtitle: const Text("Integration Deferred (Scaffold - Not Configured)"),
-          trailing: const Badge(child: Text("Deferred")),
+        const ListTile(
+          leading: Icon(SpotubeIcons.spotify, color: Colors.gray),
+          title: Text("Spotify Account"),
+          subtitle: Text("Integration Deferred (Scaffold - Not Configured)"),
+          trailing: Badge(label: Text("Deferred")),
         ),
-        ListTile(
-          leading: const Icon(SpotubeIcons.apple, color: Colors.grey),
-          title: const Text("Apple Music Account"),
-          subtitle: const Text("Integration Deferred (MusicKit Scaffold)"),
-          trailing: const Badge(child: Text("Deferred")),
+        const ListTile(
+          leading: Icon(SpotubeIcons.apple, color: Colors.gray),
+          title: Text("Apple Music Account"),
+          subtitle: Text("Integration Deferred (MusicKit Scaffold)"),
+          trailing: Badge(label: Text("Deferred")),
         ),
-        ListTile(
-          leading: const Icon(SpotubeIcons.youtube, color: Colors.grey),
-          title: const Text("YouTube Music Account"),
-          subtitle: const Text("Integration Deferred (Google OAuth Scaffold)"),
-          trailing: const Badge(child: Text("Deferred")),
+        const ListTile(
+          leading: Icon(SpotubeIcons.youtube, color: Colors.gray),
+          title: Text("YouTube Music Account"),
+          subtitle: Text("Integration Deferred (Google OAuth Scaffold)"),
+          trailing: Badge(label: Text("Deferred")),
         ),
         if (scrobbler.asData?.value == null)
           ListTile(

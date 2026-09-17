@@ -13,6 +13,7 @@ import 'package:spotube/modules/home/sections/new_releases.dart';
 import 'package:spotube/modules/home/sections/recent.dart';
 import 'package:spotube/components/titlebar/titlebar.dart';
 import 'package:spotube/extensions/constrains.dart';
+import 'package:spotube/models/database/database.dart';
 import 'package:spotube/provider/user_preferences/user_preferences_provider.dart';
 import 'package:spotube/utils/platform.dart';
 

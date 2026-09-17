@@ -102,7 +102,8 @@ extension ChunkDownloaderDioExtension on Dio {
         );
       }
 
-      final chunkSize = (totalLength / connections).ceil();
+      final effectiveTotal = totalLength;
+      final chunkSize = (effectiveTotal / connections).ceil();
       int downloaded = 0;
 
       final partFiles = List.generate(
@@ -113,7 +114,7 @@ extension ChunkDownloaderDioExtension on Dio {
       final futures = List.generate(connections, (i) async {
         final start = i * chunkSize;
         final end = (i + 1) * chunkSize - 1;
-        if (start >= totalLength!) return;
+        if (effectiveTotal > 0 && start >= effectiveTotal) return;
 
         final resp = await get<ResponseBody>(
           urlPath,
@@ -133,7 +134,7 @@ extension ChunkDownloaderDioExtension on Dio {
         await for (final chunk in resp.data!.stream) {
           sink.add(chunk);
           downloaded += chunk.length;
-          onReceiveProgress?.call(downloaded, totalLength);
+          onReceiveProgress?.call(downloaded, effectiveTotal);
         }
 
         await sink.close();

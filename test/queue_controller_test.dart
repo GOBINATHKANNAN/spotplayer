@@ -32,6 +32,7 @@ void main() {
         id: 'album_1',
         name: 'Test Album',
         externalUri: 'https://example.com/album_1',
+        artists: const [],
         albumType: SpotubeAlbumType.album,
       ),
       durationMs: 180000,
@@ -160,6 +161,7 @@ void main() {
           id: 'a',
           name: 'a',
           externalUri: 'a',
+          artists: const [],
           albumType: SpotubeAlbumType.album,
         ),
         durationMs: 180000,
@@ -200,6 +202,7 @@ void main() {
               id: 'a',
               name: 'a',
               externalUri: 'a',
+              artists: const [],
               albumType: SpotubeAlbumType.album,
             ),
             durationMs: 180000,
@@ -209,6 +212,8 @@ void main() {
 
       await queueController.load([testTracks[0], testTracks[1]], initialIndex: 0, autoPlay: false);
       await recEngine.fetchEndlessRecommendations(testTracks[0].id);
+      recEngine.dispose();
+    });
 
     test('TEST 10 — ResolvedSourceCache Instant Lookup & Reuse', () async {
       int resolutionCallCount = 0;
@@ -253,6 +258,7 @@ void main() {
             id: 'a',
             name: 'a',
             externalUri: 'a',
+            artists: const [],
             albumType: SpotubeAlbumType.album,
           ),
           durationMs: 180000,

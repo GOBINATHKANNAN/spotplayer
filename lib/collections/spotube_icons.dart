@@ -112,6 +112,8 @@ abstract class SpotubeIcons {
   static const wikipedia = SimpleIcons.wikipedia;
   static const discord = SimpleIcons.discord;
   static const youtube = SimpleIcons.youtube;
+  static const spotify = SimpleIcons.spotify;
+  static const apple = SimpleIcons.apple;
   static const radio = FeatherIcons.radio;
   static const github = SimpleIcons.github;
   static const openCollective = SimpleIcons.opencollective;

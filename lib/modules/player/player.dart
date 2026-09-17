@@ -45,14 +45,15 @@ class PlayerView extends HookConsumerWidget {
     final mediaQuery = MediaQuery.sizeOf(context);
     final qualityLabel = ref.watch(audioSourceQualityLabelProvider);
     final audioState = ref.watch(audioPlayerProvider);
-    final statusText = switch (audioState.status) {
-      TrackPlaybackStatus.resolving => "Resolving source...",
-      TrackPlaybackStatus.playing => "Playing",
-      TrackPlaybackStatus.paused => "Paused",
-      TrackPlaybackStatus.unavailable => "Track unavailable",
-      TrackPlaybackStatus.failed => "Resolution failed",
-      _ => "Idle",
-    };
+    final statusText = audioState.activeTrack == null
+        ? "Idle"
+        : sourcedCurrentTrack.isLoading
+            ? "Resolving source..."
+            : sourcedCurrentTrack.hasError
+                ? "Resolution failed"
+                : audioState.playing
+                    ? "Playing"
+                    : "Paused";
 
     final shouldHide = useState(true);
 
