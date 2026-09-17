@@ -38,3 +38,10 @@ analyzer:
     - "**.gr.dart"
     - "**/generated_plugin_registrant.dart"
     - test/**/*.dart
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**

@@ -202,18 +202,6 @@ class AudioPlayerNotifier extends Notifier<AudioPlayerState> {
       collections: [],
     );
   }
-        subscription.cancel();
-      }
-    });
-
-    return AudioPlayerState(
-      loopMode: audioPlayer.loopMode,
-      playing: audioPlayer.isPlaying,
-      shuffled: audioPlayer.isShuffled,
-      tracks: [],
-      collections: [],
-    );
-  }
 
   // Collection related methods
   Future<void> addCollections(List<String> collectionIds) async {
